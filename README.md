@@ -1,6 +1,6 @@
-# Keycloak MCP Server
+# Keycloak MCP Server (Spring AI)
 
-A Model Context Protocol (MCP) server that provides comprehensive integration with the Keycloak REST API. This server enables AI assistants and other MCP clients to manage Keycloak resources including realms, users, groups, clients, and roles.
+A Model Context Protocol (MCP) server built with **Spring AI** that provides comprehensive integration with the Keycloak REST API. This server enables AI assistants and other MCP clients to manage Keycloak resources including realms, users, groups, clients, and roles.
 
 ## Features
 
@@ -13,11 +13,20 @@ This MCP server provides tools for managing:
 - **Roles**: Both realm-level and client-level role management
 - **Role Mappings**: Assign roles to users
 
+## Technology Stack
+
+- **Java 21**
+- **Spring Boot 3.4.1**
+- **Spring AI 1.0.0-M4** (with MCP support)
+- **Spring WebFlux** (for reactive HTTP client)
+- **Maven** (build tool)
+
 ## Installation
 
 ### Prerequisites
 
-- Node.js 18 or higher
+- Java 21 or higher
+- Maven 3.9 or higher
 - A running Keycloak instance
 - Admin credentials for Keycloak
 
@@ -29,19 +38,16 @@ git clone <repository-url>
 cd keycloak-mcp
 ```
 
-2. Install dependencies:
+2. Build the project:
 ```bash
-npm install
+mvn clean package
 ```
 
-3. Build the project:
-```bash
-npm run build
-```
+3. The built JAR will be available at `target/keycloak-mcp-server-1.0.0.jar`
 
 ## Configuration
 
-The server is configured using environment variables:
+The server is configured using environment variables or application properties:
 
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
@@ -56,7 +62,7 @@ The server is configured using environment variables:
 
 ### Example Configuration
 
-Create a `.env` file in the project root:
+Create a `.env` file in the project root or set environment variables:
 
 ```bash
 KEYCLOAK_BASE_URL=http://localhost:8080
@@ -75,6 +81,29 @@ KEYCLOAK_CLIENT_ID=my-service-account
 KEYCLOAK_CLIENT_SECRET=your-client-secret
 ```
 
+## Running the Server
+
+### Standalone Mode
+
+```bash
+java -jar target/keycloak-mcp-server-1.0.0.jar
+```
+
+Or with environment variables:
+
+```bash
+KEYCLOAK_BASE_URL=http://localhost:8080 \
+KEYCLOAK_USERNAME=admin \
+KEYCLOAK_PASSWORD=admin \
+java -jar target/keycloak-mcp-server-1.0.0.jar
+```
+
+### Development Mode
+
+```bash
+mvn spring-boot:run
+```
+
 ## Usage with Claude Desktop
 
 Add this server to your Claude Desktop configuration:
@@ -87,8 +116,11 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
 {
   "mcpServers": {
     "keycloak": {
-      "command": "node",
-      "args": ["/absolute/path/to/keycloak-mcp/dist/index.js"],
+      "command": "java",
+      "args": [
+        "-jar",
+        "/absolute/path/to/keycloak-mcp/target/keycloak-mcp-server-1.0.0.jar"
+      ],
       "env": {
         "KEYCLOAK_BASE_URL": "http://localhost:8080",
         "KEYCLOAK_REALM": "master",
@@ -109,8 +141,11 @@ Edit `%APPDATA%\Claude\claude_desktop_config.json`:
 {
   "mcpServers": {
     "keycloak": {
-      "command": "node",
-      "args": ["C:\\path\\to\\keycloak-mcp\\dist\\index.js"],
+      "command": "java",
+      "args": [
+        "-jar",
+        "C:\\path\\to\\keycloak-mcp\\target\\keycloak-mcp-server-1.0.0.jar"
+      ],
       "env": {
         "KEYCLOAK_BASE_URL": "http://localhost:8080",
         "KEYCLOAK_REALM": "master",
@@ -127,59 +162,59 @@ Edit `%APPDATA%\Claude\claude_desktop_config.json`:
 
 ### Realm Management
 
-- `keycloak_list_realms` - List all realms
-- `keycloak_get_realm` - Get details of a specific realm
-- `keycloak_create_realm` - Create a new realm
-- `keycloak_update_realm` - Update an existing realm
-- `keycloak_delete_realm` - Delete a realm
+- `keycloakListRealms` - List all realms
+- `keycloakGetRealm` - Get details of a specific realm
+- `keycloakCreateRealm` - Create a new realm
+- `keycloakUpdateRealm` - Update an existing realm
+- `keycloakDeleteRealm` - Delete a realm
 
 ### User Management
 
-- `keycloak_list_users` - List users in a realm (with search and pagination)
-- `keycloak_get_user` - Get details of a specific user
-- `keycloak_create_user` - Create a new user
-- `keycloak_update_user` - Update an existing user
-- `keycloak_delete_user` - Delete a user
-- `keycloak_reset_user_password` - Reset a user's password
-- `keycloak_get_user_groups` - Get groups that a user belongs to
-- `keycloak_add_user_to_group` - Add a user to a group
-- `keycloak_remove_user_from_group` - Remove a user from a group
+- `keycloakListUsers` - List users in a realm (with search and pagination)
+- `keycloakGetUser` - Get details of a specific user
+- `keycloakCreateUser` - Create a new user
+- `keycloakUpdateUser` - Update an existing user
+- `keycloakDeleteUser` - Delete a user
+- `keycloakResetUserPassword` - Reset a user's password
+- `keycloakGetUserGroups` - Get groups that a user belongs to
+- `keycloakAddUserToGroup` - Add a user to a group
+- `keycloakRemoveUserFromGroup` - Remove a user from a group
 
 ### Group Management
 
-- `keycloak_list_groups` - List groups in a realm
-- `keycloak_get_group` - Get details of a specific group
-- `keycloak_create_group` - Create a new group
-- `keycloak_update_group` - Update an existing group
-- `keycloak_delete_group` - Delete a group
-- `keycloak_get_group_members` - Get members of a group
+- `keycloakListGroups` - List groups in a realm
+- `keycloakGetGroup` - Get details of a specific group
+- `keycloakCreateGroup` - Create a new group
+- `keycloakUpdateGroup` - Update an existing group
+- `keycloakDeleteGroup` - Delete a group
+- `keycloakGetGroupMembers` - Get members of a group
 
 ### Client Management
 
-- `keycloak_list_clients` - List clients in a realm
-- `keycloak_get_client` - Get details of a specific client
-- `keycloak_create_client` - Create a new client
-- `keycloak_update_client` - Update an existing client
-- `keycloak_delete_client` - Delete a client
-- `keycloak_get_client_secret` - Get the secret of a client
-- `keycloak_regenerate_client_secret` - Regenerate the secret of a client
+- `keycloakListClients` - List clients in a realm
+- `keycloakGetClient` - Get details of a specific client
+- `keycloakCreateClient` - Create a new client
+- `keycloakUpdateClient` - Update an existing client
+- `keycloakDeleteClient` - Delete a client
+- `keycloakGetClientSecret` - Get the secret of a client
+- `keycloakRegenerateClientSecret` - Regenerate the secret of a client
 
 ### Role Management
 
-- `keycloak_list_realm_roles` - List realm roles
-- `keycloak_get_realm_role` - Get details of a specific realm role
-- `keycloak_create_realm_role` - Create a new realm role
-- `keycloak_update_realm_role` - Update an existing realm role
-- `keycloak_delete_realm_role` - Delete a realm role
-- `keycloak_list_client_roles` - List client roles
-- `keycloak_get_client_role` - Get details of a specific client role
-- `keycloak_create_client_role` - Create a new client role
-- `keycloak_update_client_role` - Update an existing client role
-- `keycloak_delete_client_role` - Delete a client role
-- `keycloak_get_user_realm_roles` - Get realm roles assigned to a user
-- `keycloak_add_realm_roles_to_user` - Add realm roles to a user
-- `keycloak_get_user_client_roles` - Get client roles assigned to a user
-- `keycloak_add_client_roles_to_user` - Add client roles to a user
+- `keycloakListRealmRoles` - List realm roles
+- `keycloakGetRealmRole` - Get details of a specific realm role
+- `keycloakCreateRealmRole` - Create a new realm role
+- `keycloakUpdateRealmRole` - Update an existing realm role
+- `keycloakDeleteRealmRole` - Delete a realm role
+- `keycloakListClientRoles` - List client roles
+- `keycloakGetClientRole` - Get details of a specific client role
+- `keycloakCreateClientRole` - Create a new client role
+- `keycloakUpdateClientRole` - Update an existing client role
+- `keycloakDeleteClientRole` - Delete a client role
+- `keycloakGetUserRealmRoles` - Get realm roles assigned to a user
+- `keycloakAddRealmRolesToUser` - Add realm roles to a user
+- `keycloakGetUserClientRoles` - Get client roles assigned to a user
+- `keycloakAddClientRolesToUser` - Add client roles to a user
 
 ## Example Usage
 
@@ -188,40 +223,65 @@ Once configured in Claude Desktop, you can interact with Keycloak using natural 
 ```
 You: List all users in the master realm
 
-Claude: [Uses keycloak_list_users tool to fetch users]
+Claude: [Uses keycloakListUsers tool to fetch users]
 
 You: Create a new user named john.doe with email john.doe@example.com
 
-Claude: [Uses keycloak_create_user tool to create the user]
+Claude: [Uses keycloakCreateUser tool to create the user]
 
 You: Reset the password for user ID abc-123 to "newpassword" and make it temporary
 
-Claude: [Uses keycloak_reset_user_password tool]
+Claude: [Uses keycloakResetUserPassword tool]
 
 You: Show me all clients in the production realm
 
-Claude: [Uses keycloak_list_clients tool]
+Claude: [Uses keycloakListClients tool]
+```
+
+## Project Structure
+
+```
+keycloak-mcp/
+├── src/
+│   └── main/
+│       ├── java/
+│       │   └── com/keycloak/mcp/
+│       │       ├── KeycloakMcpServerApplication.java  # Main application
+│       │       ├── client/
+│       │       │   └── KeycloakClient.java            # Keycloak REST API client
+│       │       ├── config/
+│       │       │   └── KeycloakProperties.java        # Configuration properties
+│       │       └── tools/
+│       │           ├── RealmTools.java                # Realm management tools
+│       │           ├── UserTools.java                 # User management tools
+│       │           ├── GroupTools.java                # Group management tools
+│       │           ├── ClientTools.java               # Client management tools
+│       │           └── RoleTools.java                 # Role management tools
+│       └── resources/
+│           └── application.yml                         # Application configuration
+├── pom.xml                                             # Maven configuration
+├── .gitignore                                          # Git ignore rules
+├── .env.example                                        # Example environment variables
+└── README.md                                           # This file
 ```
 
 ## Development
 
-### Running in Development Mode
+### Building from Source
 
 ```bash
-npm run dev
+mvn clean package
 ```
 
-### Building
+### Running Tests
 
 ```bash
-npm run build
+mvn test
 ```
 
-### Watch Mode
+### Running in IDE
 
-```bash
-npm run watch
-```
+Import the project as a Maven project in your favorite IDE (IntelliJ IDEA, Eclipse, VS Code) and run the `KeycloakMcpServerApplication` class.
 
 ## Authentication
 
@@ -245,14 +305,23 @@ KEYCLOAK_CLIENT_ID=my-service-account
 KEYCLOAK_CLIENT_SECRET=your-client-secret
 ```
 
-The server automatically manages access tokens and refreshes them when they expire.
+The server automatically manages access tokens and refreshes them when they expire using Spring WebFlux reactive programming.
+
+## Spring AI MCP Integration
+
+This server leverages Spring AI's MCP support, which provides:
+
+- **Automatic tool registration**: Java methods annotated with `@Bean` and `@Description` are automatically exposed as MCP tools
+- **Type-safe request/response**: Uses Java records for request DTOs with schema annotations
+- **Reactive programming**: Built on Spring WebFlux for non-blocking I/O
+- **Configuration management**: Spring Boot's configuration properties for easy setup
 
 ## Security Considerations
 
 1. **Credentials**: Never commit credentials to version control. Use environment variables or secure secret management.
 2. **Access Control**: Ensure the service account or user has appropriate permissions in Keycloak.
 3. **Network Security**: Use HTTPS in production environments.
-4. **Token Management**: The server handles token refresh automatically, but tokens are stored in memory.
+4. **Token Management**: The server handles token refresh automatically using reactive streams.
 
 ## Troubleshooting
 
@@ -271,9 +340,21 @@ If you can't connect to Keycloak:
 2. Ensure Keycloak is running and accessible
 3. Check network/firewall settings
 
+### Build Errors
+
+If Maven build fails:
+1. Ensure you have Java 21 installed: `java -version`
+2. Ensure you have Maven 3.9+: `mvn -version`
+3. Clean the project: `mvn clean`
+4. Check that Spring AI repositories are accessible
+
 ## API Reference
 
 For detailed information about the Keycloak REST API, see the [official documentation](https://www.keycloak.org/docs-api/latest/rest-api/index.html).
+
+For more information about Spring AI and MCP, see:
+- [Spring AI Documentation](https://docs.spring.io/spring-ai/reference/)
+- [Model Context Protocol Specification](https://spec.modelcontextprotocol.io/)
 
 ## License
 

@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: keycloak-mcp-server
+
+  ai:
+    mcp:
+      server:
+        transport: stdio
+        server-info:
+          name: keycloak-mcp-server
+          version: 1.0.0
+
+keycloak:
+  base-url: ${KEYCLOAK_BASE_URL:http://localhost:8080}
+  realm: ${KEYCLOAK_REALM:master}
+  client-id: ${KEYCLOAK_CLIENT_ID:admin-cli}
+  client-secret: ${KEYCLOAK_CLIENT_SECRET:}
+  username: ${KEYCLOAK_USERNAME:}
+  password: ${KEYCLOAK_PASSWORD:}
+
+logging:
+  level:
+    root: INFO
+    com.keycloak.mcp: DEBUG
+    org.springframework.ai.mcp: DEBUG
